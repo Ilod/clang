@@ -1067,9 +1067,13 @@ Sema::CheckBuiltinFunctionCall(FunctionDecl *FDecl, unsigned BuiltinID,
       return ExprError();
   }
 
+  if (Context.BuiltinInfo.isPluginBuiltinID(BuiltinID)) {
+    if (Context.BuiltinInfo.getPluginBuiltinHandler(BuiltinID)->CheckBuiltinCall(TheCall, *this))
+      return ExprError();
+  }
   // Since the target specific builtins for each arch overlap, only check those
   // of the arch we are compiling for.
-  if (Context.BuiltinInfo.isTSBuiltin(BuiltinID)) {
+  else if (Context.BuiltinInfo.isTSBuiltin(BuiltinID)) {
     switch (Context.getTargetInfo().getTriple().getArch()) {
       case llvm::Triple::arm:
       case llvm::Triple::armeb:
